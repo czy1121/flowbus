@@ -29,9 +29,7 @@ class SecondActivity : AppCompatActivity() {
         }
 
         binding.state.setOnClickListener {
-            StateBus.update<Int>("what") {
-                (it ?: 0) + 2
-            }
+            StateBus.updatePrimitive<Int>("what") { it + 2 }
         }
 
 

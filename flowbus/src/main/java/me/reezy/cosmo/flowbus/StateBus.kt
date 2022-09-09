@@ -2,7 +2,6 @@
 
 package me.reezy.cosmo.flowbus
 
-import androidx.annotation.RestrictTo
 import androidx.lifecycle.*
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,16 +15,20 @@ class StateBus : ViewModel() {
     companion object {
         val global = StateBus()
 
-        fun <T> get(key: BusKey<T>): T? {
+        inline fun <T> get(key: BusKey<T>): T? {
             return global.get(key)
         }
 
-        fun <T> set(key: BusKey<T>, value: T) {
+        inline fun <T> set(key: BusKey<T>, value: T) {
             global.set(key, value)
         }
 
-        fun <T> update(key: BusKey<T>, updater: (T?) -> T) {
+        inline fun <T> update(key: BusKey<T>, noinline updater: (T?) -> T) {
             global.update(key, updater)
+        }
+
+        inline fun <reified T> updatePrimitive(key: BusKey<T>, noinline updater: (T) -> T) {
+            global.updatePrimitive(key, updater)
         }
 
         inline fun <reified T> observe(owner: LifecycleOwner, key: BusKey<T>, minState: Lifecycle.State = Lifecycle.State.STARTED, noinline observer: (T) -> Unit) {
@@ -49,6 +52,12 @@ class StateBus : ViewModel() {
             val key = busKey<T>(name)
             global.update(key, updater)
         }
+
+        inline fun <reified T> updatePrimitive(name: String, noinline updater: (T) -> T) {
+            val key = busKey<T>(name)
+            global.updatePrimitive(key, updater)
+        }
+
 
         inline fun <reified T> observe(owner: LifecycleOwner, name: String, minState: Lifecycle.State = Lifecycle.State.STARTED, noinline observer: (T) -> Unit) {
             global.observe(BusKey(name, T::class.java), owner, minState, observer)
@@ -83,9 +92,13 @@ class StateBus : ViewModel() {
     }
 
 
-
     fun <T> update(key: BusKey<T>, updater: (T?) -> T) {
         set(key, updater(get(key)))
+    }
+
+    fun <T> updatePrimitive(key: BusKey<T>, updater: (T) -> T) {
+        val value = global.get(key) ?: defaultValue(key.clazz)
+        global.set(key, updater(value))
     }
 
     fun <T> observeForever(key: BusKey<T>, observer: (T) -> Unit) {
@@ -133,4 +146,17 @@ class StateBus : ViewModel() {
     }
 
     private fun <T> ensure(key: BusKey<T>) = bus.getOrPut(key) { MutableStateFlow<T?>(null) } as MutableStateFlow<T?>
+
+
+    private fun <T> defaultValue(clazz: Class<T>): T = when (clazz) {
+        Byte::class.javaObjectType -> 0
+        Short::class.javaObjectType -> 0
+        Int::class.javaObjectType -> 0
+        Long::class.javaObjectType -> 0L
+        Float::class.javaObjectType -> 0.0f
+        Double::class.javaObjectType -> 0.0
+        Boolean::class.javaObjectType -> false
+        Char::class.javaObjectType -> 0
+        else -> throw IllegalArgumentException("clazz must be primitive")
+    } as T
 }

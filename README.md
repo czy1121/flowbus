@@ -49,8 +49,8 @@ StateBus.observe<Int>(this, "what") {
     binding.state.text = "state = $it"
 }
 
-StateBus.update<Int>("what") {
-    (it ?: 0) + 1
+StateBus.updatePrimitive<Int>("what") {
+    it + 1
 }
 ```
 

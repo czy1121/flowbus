@@ -7,9 +7,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Lifecycle
 import com.demo.app.databinding.ActivityMainBinding
-import me.reezy.cosmo.flowbus.BusKey
 import me.reezy.cosmo.flowbus.EventBus
 import me.reezy.cosmo.flowbus.StateBus
 import me.reezy.cosmo.flowbus.busKey
@@ -68,9 +66,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.state.setOnClickListener {
-            StateBus.update<Int>("what") {
-                (it ?: 0) + 1
-            }
+            StateBus.updatePrimitive<Int>("what") { it + 1 }
         }
         binding.foo.setOnClickListener {
             EventBus.emit(FooEvent("clicked in main"))

@@ -1,3 +1,5 @@
+@file:Suppress("NOTHING_TO_INLINE")
+
 package me.reezy.cosmo.flowbus
 
 import androidx.lifecycle.*
@@ -15,20 +17,19 @@ class EventBus : ViewModel() {
     companion object {
         val global = EventBus()
 
-        fun <T> emit(key: BusKey<T>, value: T) {
+        inline fun <T> emit(key: BusKey<T>, value: T) {
             global.emit(key, value)
         }
 
-        fun <T> observe(owner: LifecycleOwner, key: BusKey<T>, minState: Lifecycle.State = Lifecycle.State.STARTED, observer: (T) -> Unit) {
+        inline fun <T> observe(owner: LifecycleOwner, key: BusKey<T>, minState: Lifecycle.State = Lifecycle.State.STARTED, noinline observer: (T) -> Unit) {
             global.observe(key, owner, minState, observer)
         }
 
-        fun <T> observeForever(key: BusKey<T>, observer: (T) -> Unit) {
+        inline fun <T> observeForever(key: BusKey<T>, noinline observer: (T) -> Unit) {
             global.observe(key, null, Lifecycle.State.STARTED, observer)
         }
 
-
-        fun emitString(name: String) {
+        inline fun emitString(name: String) {
             global.emit(BusKey(name, String::class.java), name)
         }
 
