@@ -1,13 +1,13 @@
 
-apply from: "$buildGradlePath/build-library-demo.gradle"
+apply from: "$buildGradlePath/build-demo.gradle"
 
 
 dependencies {
 
     implementation project(":flowbus")
 
-    implementation "androidx.activity:activity-ktx:1.5.1"
+    compileOnly "androidx.appcompat:appcompat:1.6.1"
 
-    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.5.1"
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.6.2"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2"
 }

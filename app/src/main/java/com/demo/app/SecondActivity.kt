@@ -4,17 +4,14 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Lifecycle
 import com.demo.app.databinding.ActivityMainBinding
 import me.reezy.cosmo.flowbus.EventBus
-import me.reezy.cosmo.flowbus.StateBus
+import me.reezy.cosmo.flowbus.observeEvent
+import me.reezy.cosmo.flowbus.observeState
+import kotlin.random.Random
 
 class SecondActivity : AppCompatActivity() {
-
-    val bus: EventBus by viewModels()
 
     private val binding by lazy { ActivityMainBinding.bind(findViewById<ViewGroup>(android.R.id.content).getChildAt(0)) }
 
@@ -24,40 +21,64 @@ class SecondActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
 
-        StateBus.observe<Int>(this, "what") {
-            binding.state.text = "state = $it"
+        Global.stateCount.observeState(this) {
+            binding.state.text = "count = $it"
+            log("count = $it")
         }
+
+        Global.eventFoo.observeEvent(this) {
+            log("Global => $it")
+        }
+        Global.eventFloat.observeEvent(this) {
+            log("Global float event => $it")
+        }
+        Global.eventString.observeEvent(this) {
+            log("Global => $it")
+        }
+
+
+        EventBus.observeEvent<BarEvent>(this) {
+            log("EventBus => $it")
+        }
+        EventBus.observeEvent<Float>(this) {
+            log("EventBus => $it")
+        }
+        EventBus.observeEvent<String>(this) {
+            log("EventBus => $it")
+        }
+
+
 
         binding.state.setOnClickListener {
-            StateBus.updatePrimitive<Int>("what") { it + 2 }
+            Global.stateCount.value += 1
         }
-
-
-        EventBus.observe<FooEvent>(this) {
-            log("event = $it")
+        binding.fooEvent.setOnClickListener {
+            Global.eventFoo.tryEmit(FooEvent("clicked in second"))
         }
-
-        binding.foo.setOnClickListener {
-            EventBus.emit(FooEvent("clicked in second"))
-        }
-        binding.bar.setOnClickListener {
-            EventBus.emit(BarEvent("clicked in second"))
-        }
-        binding.btnFloat.setOnClickListener {
-            EventBus.emit(111f)
+        binding.fooFloat.setOnClickListener {
+            Global.eventFloat.tryEmit(Random.nextFloat())
         }
         binding.fooString.setOnClickListener {
-            EventBus.emitString("foo clicked in second")
+            Global.eventString.tryEmit("clicked in second")
         }
 
-        binding.btnString.visibility = View.GONE
-        binding.barString.visibility = View.GONE
+        binding.barEvent.setOnClickListener {
+            EventBus.emit(BarEvent("clicked in second"))
+        }
+        binding.barFloat.setOnClickListener {
+            EventBus.emit(Random.nextFloat())
+        }
+        binding.barString.setOnClickListener {
+            EventBus.emit("clicked in second")
+        }
+
         binding.second.visibility = View.GONE
 
     }
 
     private fun log(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-        Log.e("OoO", message)
+//        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+        Log.e("OoO", "$this => $message")
+        binding.logs.text = "${binding.logs.text}\n$message"
     }
 }

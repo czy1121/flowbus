@@ -1,19 +1,46 @@
 package me.reezy.cosmo.flowbus
 
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.whenStateAtLeast
+import androidx.lifecycle.*
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 
 
-inline fun <reified T> busKey(name: String) = BusKey(name, T::class.java)
+@Suppress("NOTHING_TO_INLINE", "FunctionName")
+inline fun <T> SimpleEventFlow() = MutableSharedFlow<T>(0, 1, BufferOverflow.DROP_OLDEST)
 
-fun <T> Flow<T>.observe(owner: LifecycleOwner, minState: Lifecycle.State = Lifecycle.State.STARTED, action: (T) -> Unit) {
+
+//fun <T> StateFlow<T>.observeState(owner: LifecycleOwner, minState: Lifecycle.State = Lifecycle.State.STARTED, action: suspend (T) -> Unit) {
+//    owner.lifecycleScope.launch {
+//        owner.lifecycle.whenStateAtLeast(minState) {
+//            collect(action)
+//        }
+//    }
+//}
+
+
+fun <T> Flow<T>.observeState(owner: LifecycleOwner, minState: Lifecycle.State = Lifecycle.State.STARTED, action: suspend (T) -> Unit) {
     owner.lifecycleScope.launch {
         owner.lifecycle.whenStateAtLeast(minState) {
-            collect(action)
+            try {
+                collect(action)
+            } catch (ex: Throwable) {
+                ex.printStackTrace()
+            }
         }
     }
 }
+
+fun <T> Flow<T>.observeEvent(owner: LifecycleOwner, minState: Lifecycle.State = Lifecycle.State.STARTED, action: suspend (T) -> Unit) {
+    owner.lifecycleScope.launch {
+        owner.lifecycle.repeatOnLifecycle(minState) {
+            try {
+                collect(action)
+            } catch (ex: Throwable) {
+                ex.printStackTrace()
+            }
+        }
+    }
+}
+
