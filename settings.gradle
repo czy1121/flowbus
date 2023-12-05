@@ -14,9 +14,7 @@ dependencyResolutionManagement {
         mavenCentral()
     }
     versionCatalogs {
-        libs {
-            from files("$buildGradlePath/versions-basic.toml")
-        }
+        libs { from files("$buildGradlePath/versions-cosmo.toml") }
     }
 }
 rootProject.name = "bus"
