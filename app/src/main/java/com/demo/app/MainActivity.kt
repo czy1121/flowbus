@@ -5,11 +5,11 @@ import android.os.Bundle
 import android.util.Log
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
 import com.demo.app.databinding.ActivityMainBinding
-import kotlinx.coroutines.flow.collect
 import me.reezy.cosmo.flowbus.EventBus
-import me.reezy.cosmo.flowbus.observeEvent
-import me.reezy.cosmo.flowbus.observeState
+import me.reezy.cosmo.flowbus.observe
+import me.reezy.cosmo.flowbus.observeLatest
 import kotlin.random.Random
 
 class MainActivity : AppCompatActivity() {
@@ -20,33 +20,34 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        Global.stateCount.value = 3
 
-        Global.stateCount.observeState(this) {
+        Global.stateCount.observe(this, minState = Lifecycle.State.RESUMED) {
             binding.state.text = "count = $it"
             log("count = $it")
         }
 
-        Global.eventFoo.observeEvent(this) {
+        Global.eventFoo.observe(this) {
             log("Global foo1 => $it")
         }
-        Global.eventFoo.observeState(this) {
+        Global.eventFoo.observeLatest(this) {
             log("Global foo2 sticky => $it")
         }
-        Global.eventFloat.observeEvent(this) {
+        Global.eventFloat.observe(this) {
             log("Global float event => $it")
         }
-        Global.eventString.observeEvent(this) {
+        Global.eventString.observe(this) {
             log("Global => $it")
         }
 
 
-        EventBus.observeState<BarEvent>(this) {
+        EventBus.observe<BarEvent>(this) {
             log("EventBus => $it")
         }
-        EventBus.observeState<Float>(this) {
+        EventBus.observe<Float>(this) {
             log("EventBus => $it")
         }
-        EventBus.observeState<String>(this) {
+        EventBus.observe<String>(this) {
             log("EventBus => $it")
         }
 

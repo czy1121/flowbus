@@ -1,17 +1,15 @@
 package com.demo.app
 
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import me.reezy.cosmo.flowbus.SimpleEventFlow
+import me.reezy.cosmo.flowbus.EventFlow
 
 object Global {
 
-    val eventFloat =  SimpleEventFlow<Float>()
+    val eventFloat =  EventFlow<Float>()
 
-    val eventString = SimpleEventFlow<String>()
+    val eventString = EventFlow<String>()
 
-    val eventFoo = SimpleEventFlow<FooEvent>()
+    val eventFoo = EventFlow<FooEvent>()
 
     val stateCount = MutableStateFlow(0)
 }

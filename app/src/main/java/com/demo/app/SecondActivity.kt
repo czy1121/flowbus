@@ -7,8 +7,8 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import com.demo.app.databinding.ActivityMainBinding
 import me.reezy.cosmo.flowbus.EventBus
-import me.reezy.cosmo.flowbus.observeEvent
-import me.reezy.cosmo.flowbus.observeState
+import me.reezy.cosmo.flowbus.observe
+import me.reezy.cosmo.flowbus.observeLatest
 import kotlin.random.Random
 
 class SecondActivity : AppCompatActivity() {
@@ -21,29 +21,29 @@ class SecondActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
 
-        Global.stateCount.observeState(this) {
+        Global.stateCount.observeLatest(this) {
             binding.state.text = "count = $it"
             log("count = $it")
         }
 
-        Global.eventFoo.observeEvent(this) {
+        Global.eventFoo.observe(this) {
             log("Global => $it")
         }
-        Global.eventFloat.observeEvent(this) {
+        Global.eventFloat.observe(this) {
             log("Global float event => $it")
         }
-        Global.eventString.observeEvent(this) {
+        Global.eventString.observe(this) {
             log("Global => $it")
         }
 
 
-        EventBus.observeEvent<BarEvent>(this) {
+        EventBus.observe<BarEvent>(this) {
             log("EventBus => $it")
         }
-        EventBus.observeEvent<Float>(this) {
+        EventBus.observe<Float>(this) {
             log("EventBus => $it")
         }
-        EventBus.observeEvent<String>(this) {
+        EventBus.observe<String>(this) {
             log("EventBus => $it")
         }
 

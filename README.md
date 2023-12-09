@@ -5,30 +5,30 @@
 - 支持生命周期感知
 - 支持自动清除空闲事件 
 
-事件(SimpleEventFlow)和状态(MutableStateFlow)
 
-- 订阅事件(`Flow<T>.observeEvent`)
-  - 通过 `Lifecycle.repeatOnLifecycle` 实现
-  - 订阅后进入 `minState` 状态开始接收处理事件, 脱离 `minState` 状态停止接收处理事件  
-  - 通常配合 `SimpleEventFlow` 使用
-- 订阅状态(`Flow<T>.observeState`)
-  - 通过 `Lifecycle.whenStateAtLeast` 实现
-  - 订阅后开始接收事件，但不会立刻处理，进入 `minState` 状态后处理最新的一个事件
-  - 通常配合 `MutableStateFlow` 使用 
+## 观察
 
+```kotlin
 
-有时，在A页订阅事件`SimpleEventFlow`，然后进入B页发送了事件，但想回到A页时再处理，可用 `observeState`   
+/**
+ * 观察流，进入 [minState] 时开始，脱离 [minState] 时停止
+ *
+ * - 对于 [StateFlow]，每次进入 [minState] 都会观察一次当前值
+ * - 对于 [EventFlow]，只能收到进入 [minState] 后发射的值
+ * */
+fun <T> Flow<T>.observe(owner: LifecycleOwner, minState: Lifecycle.State = Lifecycle.State.STARTED, action: suspend (T) -> Unit)
 
-## Gradle
-
-``` groovy
-repositories {
-    maven { url "https://gitee.com/ezy/repo/raw/cosmo/"}
-}
-dependencies {
-    implementation "me.reezy.cosmo:flowbus:0.8.0"
-}
+/**
+ * 观察流，脱离 [minState] 后会保存最近产生的值，再次进入 [minState] 时消费
+ *
+ * - 对于 [StateFlow]，没啥用，效果与 [observe] 没区别
+ * - 对于 [EventFlow]，每次进入 [minState] 时能收到并消费最近产生的值(如果有)
+ * 
+ * [EventFlow] 场景：在A页订阅事件，然后进入B页发送了事件，但想回到A页时再处理，可用此方法
+ * */
+fun <T> Flow<T>.observeLatest(owner: LifecycleOwner, minState: Lifecycle.State = Lifecycle.State.STARTED, action: suspend (T) -> Unit)
 ```
+ 
 
 ## EventBus 使用
 
@@ -37,18 +37,18 @@ data class FooEvent(val value: String)
 data class BarEvent(val value: String)
 
 object Global {
-    val eventFoo = SimpleEventFlow<FooEvent>()
+    val eventFoo = EventFlow<FooEvent>()
 
     val stateCount = MutableStateFlow(0)
 }
 
-Global.stateCount.observeState(this) {
+Global.stateCount.observe(this) {
     binding.state.text = "count = $it"
 }
-Global.eventFoo.observeState(this) {
+Global.eventFoo.observeLatest(this) {
     log("Global => $it")
 } 
-EventBus.observeEvent<BarEvent>(this) {
+EventBus.observe<BarEvent>(this) {
     log("EventBus => $it")
 }
 
@@ -60,6 +60,17 @@ binding.barEvent.setOnClickListener {
 }
 ```
 
+
+## Gradle
+
+``` groovy
+repositories {
+    maven { url "https://gitee.com/ezy/repo/raw/cosmo/"}
+}
+dependencies {
+    implementation "me.reezy.cosmo:flowbus:0.8.0"
+}
+```
 
 ## LICENSE
 

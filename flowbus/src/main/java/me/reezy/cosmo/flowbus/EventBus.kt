@@ -29,12 +29,12 @@ class EventBus : ViewModel() {
             global.emit(T::class.java, "", value)
         }
 
-        inline fun <reified T> observeEvent(owner: LifecycleOwner, eventName: String = "", minState: Lifecycle.State = Lifecycle.State.STARTED, noinline observer: (T) -> Unit) {
-            global.observeEvent(T::class.java, owner, eventName, minState, observer)
+        inline fun <reified T> observe(owner: LifecycleOwner, eventName: String = "", minState: Lifecycle.State = Lifecycle.State.STARTED, noinline observer: (T) -> Unit) {
+            global.observe(T::class.java, owner, eventName, minState, observer)
         }
 
-        inline fun <reified T> observeState(owner: LifecycleOwner, eventName: String = "", minState: Lifecycle.State = Lifecycle.State.STARTED, noinline observer: (T) -> Unit) {
-            global.observeState(T::class.java, owner, eventName, minState, observer)
+        inline fun <reified T> observeLatest(owner: LifecycleOwner, eventName: String = "", minState: Lifecycle.State = Lifecycle.State.STARTED, noinline observer: (T) -> Unit) {
+            global.observeLatest(T::class.java, owner, eventName, minState, observer)
         }
 
         inline fun <reified T> observeForever(eventName: String = "", noinline observer: (T) -> Unit) {
@@ -56,12 +56,12 @@ class EventBus : ViewModel() {
         emit(T::class.java, "", value)
     }
 
-    inline fun <reified T> observeState(owner: LifecycleOwner, eventName: String = "", minState: Lifecycle.State = Lifecycle.State.STARTED, noinline observer: (T) -> Unit) {
-        observeState(T::class.java, owner, eventName, minState, observer)
+    inline fun <reified T> observe(owner: LifecycleOwner, eventName: String = "", minState: Lifecycle.State = Lifecycle.State.STARTED, noinline observer: (T) -> Unit) {
+        observe(T::class.java, owner, eventName, minState, observer)
     }
 
-    inline fun <reified T> observeEvent(owner: LifecycleOwner, eventName: String = "", minState: Lifecycle.State = Lifecycle.State.STARTED, noinline observer: (T) -> Unit) {
-        observeEvent(T::class.java, owner, eventName, minState, observer)
+    inline fun <reified T> observeLatest(owner: LifecycleOwner, eventName: String = "", minState: Lifecycle.State = Lifecycle.State.STARTED, noinline observer: (T) -> Unit) {
+        observeLatest(T::class.java, owner, eventName, minState, observer)
     }
 
     inline fun <reified T> observeForever(eventName: String = "", noinline observer: (T) -> Unit) {
@@ -76,12 +76,13 @@ class EventBus : ViewModel() {
         }
     }
 
-    fun <T> observeState(eventClazz: Class<T>, owner: LifecycleOwner, eventName: String, minState: Lifecycle.State = Lifecycle.State.STARTED, action: (T) -> Unit) {
-        get<T>("$eventClazz:$eventName", owner).observeState(owner, minState, action)
+
+    fun <T> observe(eventClazz: Class<T>, owner: LifecycleOwner, eventName: String, minState: Lifecycle.State = Lifecycle.State.STARTED, action: (T) -> Unit) {
+        get<T>("$eventClazz:$eventName", owner).observe(owner, minState, action)
     }
 
-    fun <T> observeEvent(eventClazz: Class<T>, owner: LifecycleOwner, eventName: String, minState: Lifecycle.State = Lifecycle.State.STARTED, action: (T) -> Unit) {
-        get<T>("$eventClazz:$eventName", owner).observeEvent(owner, minState, action)
+    fun <T> observeLatest(eventClazz: Class<T>, owner: LifecycleOwner, eventName: String, minState: Lifecycle.State = Lifecycle.State.STARTED, action: (T) -> Unit) {
+        get<T>("$eventClazz:$eventName", owner).observeLatest(owner, minState, action)
     }
 
     fun <T> observeForever(eventClazz: Class<T>, eventName: String, observer: (T) -> Unit) {
