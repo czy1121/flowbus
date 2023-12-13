@@ -3,7 +3,7 @@
 事件总线(基于SharedFlow)
  
 - 支持生命周期感知
-- 支持自动清除空闲事件 
+- 支持自动清除空闲事件
 
 
 ## 观察
@@ -11,24 +11,28 @@
 ```kotlin
 
 /**
- * 观察流，进入 [minState] 时开始，脱离 [minState] 时停止
+ * 订阅事件(EventFlow)或状态(StateFlow)
  *
- * - 对于 [StateFlow]，每次进入 [minState] 都会观察一次当前值
- * - 对于 [EventFlow]，只能收到进入 [minState] 后发射的值
- * */
+ * - 对于 [EventFlow]，进入 [minState] 开始订阅，脱离 [minState] 取消订阅
+ * - 对于 [StateFlow]，满足 [minState] 时立刻消费，不足 [minState] 时缓存最近的事件待再次进入时消费
+ *
+ */
 fun <T> Flow<T>.observe(owner: LifecycleOwner, minState: Lifecycle.State = Lifecycle.State.STARTED, action: suspend (T) -> Unit)
 
+
 /**
- * 观察流，脱离 [minState] 后会保存最近产生的值，再次进入 [minState] 时消费
+ * 订阅事件，满足 [minState] 时立刻消费，不足 [minState] 时缓存最近的事件待再次进入时消费
  *
- * - 对于 [StateFlow]，没啥用，效果与 [observe] 没区别
- * - 对于 [EventFlow]，每次进入 [minState] 时能收到并消费最近产生的值(如果有)
- * 
- * [EventFlow] 场景：在A页订阅事件，然后进入B页发送了事件，但想回到A页时再处理，可用此方法
- * */
+ * 示例：在A页观察流，然后进入B页发送了事件，回到A页消费事件
+ */
 fun <T> Flow<T>.observeLatest(owner: LifecycleOwner, minState: Lifecycle.State = Lifecycle.State.STARTED, action: suspend (T) -> Unit)
+
+
+/**
+ * 进入 [minState] 开始订阅，脱离 [minState] 取消订阅
+ * */
+fun <T> Flow<T>.observeRepeat(owner: LifecycleOwner, minState: Lifecycle.State = Lifecycle.State.STARTED, action: suspend (T) -> Unit)
 ```
- 
 
 ## EventBus 使用
 
@@ -68,7 +72,7 @@ repositories {
     maven { url "https://gitee.com/ezy/repo/raw/cosmo/"}
 }
 dependencies {
-    implementation "me.reezy.cosmo:flowbus:0.8.0"
+    implementation "me.reezy.cosmo:flowbus:0.9.0"
 }
 ```
 

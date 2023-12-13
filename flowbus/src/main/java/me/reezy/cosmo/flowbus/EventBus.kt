@@ -78,7 +78,7 @@ class EventBus : ViewModel() {
 
 
     fun <T> observe(eventClazz: Class<T>, owner: LifecycleOwner, eventName: String, minState: Lifecycle.State = Lifecycle.State.STARTED, action: (T) -> Unit) {
-        get<T>("$eventClazz:$eventName", owner).observe(owner, minState, action)
+        get<T>("$eventClazz:$eventName", owner).observeRepeat(owner, minState, action)
     }
 
     fun <T> observeLatest(eventClazz: Class<T>, owner: LifecycleOwner, eventName: String, minState: Lifecycle.State = Lifecycle.State.STARTED, action: (T) -> Unit) {
