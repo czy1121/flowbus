@@ -85,14 +85,12 @@ class EventBus : ViewModel() {
         get<T>("$eventClazz:$eventName", owner).observeLatest(owner, minState, action)
     }
 
-    fun <T> observeForever(eventClazz: Class<T>, eventName: String, observer: (T) -> Unit) {
-        viewModelScope.launch {
-            get<T>("$eventClazz:$eventName").collect {
-                try {
-                    observer(it)
-                } catch (ex: Throwable) {
-                    ex.printStackTrace()
-                }
+    fun <T> observeForever(eventClazz: Class<T>, eventName: String, observer: (T) -> Unit) = viewModelScope.launch {
+        get<T>("$eventClazz:$eventName").collect {
+            try {
+                observer(it)
+            } catch (ex: Throwable) {
+                ex.printStackTrace()
             }
         }
     }
